@@ -1,5 +1,6 @@
 package ru.kpfu.itis.customrecyclerlistener.listener
 
+import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,8 +13,14 @@ class ShownAdapterListener(
 ) : RecyclerView.OnScrollListener() {
 
     private var lastToast: Toast?  = null
+    private var inited: Boolean = false
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+        if (!inited){
+            initInnerRecyclers(recyclerView)
+            inited = true
+        }
+
         when (val layoutManager = recyclerView.layoutManager) {
             is GridLayoutManager -> {
                 if (dy != 0){
@@ -40,6 +47,17 @@ class ShownAdapterListener(
                 if (dx != 0){
                     handleStaggeredGridLayout(layoutManager,recyclerView,dx,false)
                 }
+            }
+        }
+    }
+
+    private fun initInnerRecyclers(recyclerView: RecyclerView) {
+        for (i in 0 until recyclerView.childCount){
+            val view = recyclerView.getChildAt(i)
+
+            if (view is RecyclerView){
+                Log.d("TEST-TAG","FOUND RECYCLER")
+                view.addOnScrollListener(this)
             }
         }
     }
